@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { BottomNav } from "@/components/mobile/bottom-nav";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css";
 
 const geistSans = Geist({
@@ -100,6 +101,7 @@ export default function RootLayout({
             })
           }}
         />
+        <SpeedInsights />
       </body>
     </html>
   );
