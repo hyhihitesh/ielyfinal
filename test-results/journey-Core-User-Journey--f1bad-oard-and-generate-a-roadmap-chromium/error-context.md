@@ -1,0 +1,86 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - link "Piely waving happily" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "Piely waving happily" [ref=e10]
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e16]: Identity Creation
+          - generic [ref=e17]: "REF: P-NEW-01"
+        - generic [ref=e18]:
+          - generic [ref=e19]: Start your journey
+          - generic [ref=e20]: Define your core credentials to access the roadmap engine.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - generic [ref=e25]:
+            - paragraph [ref=e26]: Error Detected
+            - paragraph [ref=e27]: Email address "e2e-test-1768245909332@example.com" is invalid
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Email Address
+            - textbox "Email Address" [ref=e31]:
+              - /placeholder: founder@example.com
+          - generic [ref=e32]:
+            - generic [ref=e33]: Password
+            - textbox "Password" [ref=e34]
+            - paragraph [ref=e35]: Min. 6 characters required
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - img [ref=e38]
+              - generic [ref=e41]: Personalized startup roadmap
+            - generic [ref=e42]:
+              - img [ref=e43]
+              - generic [ref=e46]: AI-powered analysis
+            - generic [ref=e47]:
+              - img [ref=e48]
+              - generic [ref=e51]: Save progress securely
+          - button "Create Account" [ref=e52]
+      - paragraph [ref=e54]:
+        - text: Already Authenticated?
+        - link "Access Portal" [ref=e55] [cursor=pointer]:
+          - /url: /auth/login
+    - paragraph [ref=e57]: Decision Intelligence for Founders
+  - contentinfo [ref=e58]:
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - link "PIELY" [ref=e62] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e63]: Decision intelligence for founders. meaningful logic, not generic advice.
+        - generic [ref=e64]:
+          - heading "Product" [level=3] [ref=e65]
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - link "Pricing" [ref=e68] [cursor=pointer]:
+                - /url: /#pricing
+            - listitem [ref=e69]:
+              - link "Login" [ref=e70] [cursor=pointer]:
+                - /url: /auth/login
+            - listitem [ref=e71]:
+              - link "Sign Up" [ref=e72] [cursor=pointer]:
+                - /url: /auth/signup
+        - generic [ref=e73]:
+          - heading "Legal" [level=3] [ref=e74]
+          - list [ref=e75]:
+            - listitem [ref=e76]:
+              - link "Privacy Policy" [ref=e77] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e78]:
+              - link "Terms & Conditions" [ref=e79] [cursor=pointer]:
+                - /url: /terms
+      - generic [ref=e80]:
+        - generic [ref=e81]: © 2026 Piely Inc. All rights reserved.
+        - generic [ref=e82]:
+          - link "Twitter" [ref=e83] [cursor=pointer]:
+            - /url: https://twitter.com
+          - link "GitHub" [ref=e84] [cursor=pointer]:
+            - /url: https://github.com
+  - button "Open Next.js Dev Tools" [ref=e90] [cursor=pointer]:
+    - img [ref=e91]
+  - alert [ref=e94]
+```
