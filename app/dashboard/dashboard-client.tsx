@@ -14,7 +14,9 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { motion } from 'framer-motion';
-import { Sparkles, Lock, CheckCircle2, PlayCircle } from 'lucide-react';
+import { Sparkles, Lock, CheckCircle2, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Database } from '@/lib/types/database';
 import { RoadmapList } from '@/components/mobile/roadmap-list';
 import { DetailModal } from '@/components/mobile/detail-modal';
@@ -26,7 +28,10 @@ import dynamic from 'next/dynamic';
 import { TourProvider } from '@/components/onboarding/tour-provider';
 import { UserStats } from '@/app/actions/analytics';
 import { UserBadge } from '@/lib/types/gamification';
+import { toast } from 'sonner';
 import { LevelDisplay } from '@/components/dashboard/level-display';
+import { Logo } from '@/components/ui/logo';
+import { SettingsModal } from '@/components/dashboard/settings-modal';
 
 // Lazy load non-critical dashboard components
 const ProgressStats = dynamic(() => import('@/components/dashboard/progress-stats').then(mod => mod.ProgressStats), {
@@ -169,7 +174,13 @@ export default function DashboardClient({
     const [selectedNode, setSelectedNode] = useState<Database['public']['Tables']['canvas_nodes']['Row'] | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
-    const [userMenuOpen, setUserMenuOpen] = useState(false); // Added state
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // Sidebar States
+    const [showLeftSidebar, setShowLeftSidebar] = useState(true);
+    const [showRightSidebar, setShowRightSidebar] = useState(true);
+
     const isMobile = useIsMobile();
 
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
@@ -223,9 +234,7 @@ export default function DashboardClient({
                 <nav className="glass border-b border-border px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-accent rounded-lg flex items-center justify-center">
-                                <Sparkles className="w-5 h-5 text-accent-foreground" strokeWidth={1.5} />
-                            </div>
+                            <Logo className="w-8 h-8" />
                             <div className="flex flex-col">
                                 <span className="text-lg font-bold text-foreground leading-none">
                                     Piely
@@ -236,10 +245,6 @@ export default function DashboardClient({
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden md:block">
-                                💬 AI Companion Active
-                            </button>
-
                             {/* Dynamic Insights Feed */}
                             <InsightsFeed insights={insights} />
 
@@ -271,6 +276,15 @@ export default function DashboardClient({
                                             <span>🌍</span> Community
                                         </button>
                                         <button
+                                            onClick={() => {
+                                                setUserMenuOpen(false)
+                                                setIsSettingsOpen(true)
+                                            }}
+                                            className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent/10 transition-colors flex items-center gap-2"
+                                        >
+                                            <span>⚙️</span> Settings
+                                        </button>
+                                        <button
                                             onClick={async () => {
                                                 const { createClient } = await import('@/lib/supabase/client')
                                                 const supabase = createClient()
@@ -288,41 +302,61 @@ export default function DashboardClient({
                     </div>
                 </nav>
 
+                {/* Settings Modal */}
+                <SettingsModal
+                    isOpen={isSettingsOpen}
+                    onOpenChange={setIsSettingsOpen}
+                    user={user}
+                />
+
                 {/* Main Content */}
                 <div className="flex-1 flex overflow-hidden">
-                    {/* Left Sidebar - Chat Only */}
-                    <div className="w-[320px] border-r border-border bg-card/50 backdrop-blur-sm p-4 hidden md:flex flex-col gap-4 relative z-10 transition-all duration-300 overflow-y-auto">
-                        {/* Logo & Title */}
-                        <div className="flex items-center gap-2 shrink-0">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                                <Sparkles className="w-5 h-5 text-primary" />
-                            </div>
-                            <h2 className="font-bold text-lg tracking-tight">Piely</h2>
-                        </div>
-
-                        {/* Navigation Links */}
-                        <div className="flex flex-col gap-1 shrink-0">
-                            <button
-                                onClick={() => router.push('/dashboard/minds')}
-                                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/5 rounded-lg transition-colors text-left"
+                    {/* Left Sidebar - AI Chat (Moved to Left) */}
+                    <div
+                        className={cn(
+                            "border-r border-border bg-card/50 backdrop-blur-sm transition-all duration-300 ease-in-out relative flex flex-col z-20",
+                            isMobile ? "hidden" : showLeftSidebar ? "w-[350px]" : "w-0 opacity-0 overflow-hidden"
+                        )}
+                    >
+                        {/* Toggle Button (Visible when open) */}
+                        <div className={cn("absolute -right-3 top-6 z-50", !showLeftSidebar && "hidden")}>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-6 w-6 rounded-full border shadow-sm bg-background hover:bg-accent"
+                                onClick={() => setShowLeftSidebar(false)}
                             >
-                                <span className="text-lg">🌍</span> Minds Feed
-                            </button>
+                                <ChevronLeft className="h-3 w-3" />
+                            </Button>
                         </div>
 
-                        {/* AI Co-Founder Chat - Takes remaining space */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="flex-1 flex flex-col min-h-0 overflow-hidden"
-                        >
-                            <SidebarChat
-                                projectId={project.id}
-                                initialMessages={chatHistory}
-                            />
-                        </motion.div>
+                        {/* Content Container */}
+                        <div className="flex flex-col h-full overflow-hidden w-[350px]">
+                            {/* Chat Header Removed as per user request */}
+
+                            {/* Chat Body */}
+                            <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+                                <SidebarChat
+                                    projectId={project.id}
+                                    initialMessages={chatHistory}
+                                />
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Show Left Sidebar Button (When Closed) */}
+                    {!showLeftSidebar && !isMobile && (
+                        <div className="absolute left-4 top-24 z-30">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 rounded-full border shadow-md bg-background hover:bg-accent"
+                                onClick={() => setShowLeftSidebar(true)}
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Center - Canvas Area */}
                     {!isMobile && (
@@ -335,53 +369,85 @@ export default function DashboardClient({
                                 onNodesChange={onNodesChange}
                                 onEdgesChange={onEdgesChange}
                                 fitView
-                                className="bg-background/50" // Slight transparency for grid visibility
+                                className="bg-background/50"
                                 defaultEdgeOptions={{
-                                    type: 'smoothstep', // Architectural right angles with slight curves
+                                    type: 'smoothstep',
                                     animated: true,
-                                    style: { stroke: 'var(--border)', strokeWidth: 1.5, strokeDasharray: '4 4' }, // Dashed line style
+                                    style: { stroke: 'var(--border)', strokeWidth: 1.5, strokeDasharray: '4 4' },
                                 }}
                             >
-                                <Background color="#e4e4e7" gap={24} size={1} /> {/* Finer grid dots */}
+                                <Background color="#e4e4e7" gap={24} size={1} />
                                 <Controls className="!bg-card !border !border-border !shadow-none !rounded-none" />
                             </ReactFlow>
                         </div>
                     )}
 
-                    {/* Right Sidebar - Stats & Progress */}
-                    <div className="w-[280px] border-l border-border bg-card/50 backdrop-blur-sm p-4 hidden lg:flex flex-col gap-4 overflow-y-auto">
-                        {/* Stats Cards */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            <ProgressStats stats={stats} />
-                        </motion.div>
+                    {/* Right Sidebar - Navigation & Stats (Moved to Right) */}
+                    <div
+                        className={cn(
+                            "border-l border-border bg-card/50 backdrop-blur-sm transition-all duration-300 ease-in-out relative flex flex-col z-20",
+                            isMobile ? "hidden" : showRightSidebar ? "w-[300px]" : "w-0 opacity-0 overflow-hidden"
+                        )}
+                    >
+                        {/* Toggle Button (Visible when open) */}
+                        <div className={cn("absolute -left-3 top-6 z-50", !showRightSidebar && "hidden")}>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-6 w-6 rounded-full border shadow-sm bg-background hover:bg-accent"
+                                onClick={() => setShowRightSidebar(false)}
+                            >
+                                <ChevronRight className="h-3 w-3" />
+                            </Button>
+                        </div>
 
-                        {/* Level Display */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.25 }}
-                        >
-                            <LevelDisplay
-                                level={userLevel.level}
-                                progress={userLevel.progress}
-                                totalTasks={userLevel.totalTasks}
-                                nextLevelAt={userLevel.nextLevelAt}
-                            />
-                        </motion.div>
+                        {/* Content Container */}
+                        <div className="flex flex-col h-full overflow-hidden w-[300px]">
+                            <div className="p-4 flex flex-col gap-6 h-full overflow-y-auto">
+                                {/* Navigation */}
+                                <div className="flex flex-col gap-1 shrink-0">
+                                    <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2 px-2">Navigation</h3>
+                                    <button
+                                        onClick={() => router.push('/dashboard/minds')}
+                                        className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/5 rounded-lg transition-colors text-left group"
+                                    >
+                                        <span className="text-lg group-hover:scale-110 transition-transform">🌍</span>
+                                        <span>Minds Feed</span>
+                                    </button>
+                                </div>
 
-                        {/* Recent Badges */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            <BadgeDisplay badges={badges} />
-                        </motion.div>
+                                {/* Gamification & Stats */}
+                                <div className="space-y-4">
+                                    <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2 px-2">Progress</h3>
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                                        <LevelDisplay
+                                            level={userLevel.level}
+                                            progress={userLevel.progress}
+                                            totalTasks={userLevel.totalTasks}
+                                            nextLevelAt={userLevel.nextLevelAt}
+                                        />
+                                    </motion.div>
+
+                                    <ProgressStats stats={stats} />
+                                    <BadgeDisplay badges={badges} />
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Show Right Sidebar Button (When Closed) */}
+                    {!showRightSidebar && !isMobile && (
+                        <div className="absolute right-4 top-24 z-30">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 rounded-full border shadow-md bg-background hover:bg-accent"
+                                onClick={() => setShowRightSidebar(true)}
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Mobile Roadmap List */}
                     {isMobile && (
@@ -447,11 +513,30 @@ export default function DashboardClient({
                 {isMobile && selectedNode && isMobileModalOpen && (
                     <QuickActions
                         className="z-[60]" // Lift above modal
-                        onComplete={() => console.log('Mark complete: Coming soon')}
+                        onComplete={async () => {
+                            try {
+                                const { updateNodeStatus } = await import('@/app/actions/node')
+                                await updateNodeStatus(selectedNode.id, 'complete')
+                                toast.success("Node marked as complete! 🎉")
+                                setIsMobileModalOpen(false)
+                            } catch (e) {
+                                toast.error("Failed to update status")
+                            }
+                        }}
                         onAskAI={() => {
                             setIsChatOpen(true); // Open global chat
                         }}
-                        onAddTask={() => console.log('Add task: Coming soon')}
+                        onAddTask={async () => {
+                            try {
+                                // Default action: Add a generic 'Research' task for quick capture
+                                const { addTask } = await import('@/app/actions/task')
+                                await addTask(selectedNode.id, "Research & Validatation")
+                                toast.success("Task added to node")
+                                setIsMobileModalOpen(false) // Close to show update
+                            } catch (e) {
+                                toast.error("Failed to add task")
+                            }
+                        }}
                     />
                 )}
             </div>

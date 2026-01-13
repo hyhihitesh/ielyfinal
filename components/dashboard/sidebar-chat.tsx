@@ -1,12 +1,9 @@
-'use client'
-
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { Send, Loader2 } from 'lucide-react'
+import { Send, Loader2, ArrowDown } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import { saveChat } from '@/app/actions/chat'
@@ -19,6 +16,7 @@ interface SidebarChatProps {
 
 export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
     const [input, setInput] = useState('')
+    const [showScrollButton, setShowScrollButton] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)
 
     const { messages, sendMessage, status } = useChat({
@@ -30,6 +28,7 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
                 context: {
                     page: 'dashboard',
                     projectId,
+                    system: "You are a sassy, direct, and extremely helpful AI Co-Founder. You help with startup validation.", // Reinforce persona from screenshot
                 }
             }
         }),
@@ -39,7 +38,7 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
     const prevStatusRef = useRef<string>(status)
     const isSavingRef = useRef(false)
 
-    // Save messages when response completes
+    // Save messages logic...
     useEffect(() => {
         const wasLoading = prevStatusRef.current !== 'ready'
         const isNowReady = status === 'ready'
@@ -62,34 +61,52 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
         setInput('')
     }
 
-    // Auto-scroll
+    // Auto-scroll when new messages appear
     useEffect(() => {
         if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+            const { scrollHeight, clientHeight } = scrollRef.current;
+            // Only auto-scroll if we were already near bottom OR it's a new message generation
+            scrollRef.current.scrollTop = scrollHeight;
         }
-    }, [messages])
+    }, [messages, status]) // Depend on status too so it scrolls while generating
+
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = scrollRef.current
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+            setShowScrollButton(!isNearBottom)
+        }
+    }
+
+    const scrollToBottom = () => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTo({
+                top: scrollRef.current.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    }
 
     return (
-        <div className="flex flex-col h-full rounded-xl border border-border bg-card overflow-hidden">
-            {/* Header - Minimal */}
-            <div className="px-4 py-3 border-b border-border flex items-center justify-between shrink-0">
-                <div>
-                    <h4 className="text-sm font-medium text-foreground">AI Co-Founder</h4>
-                    <p className="text-[10px] text-muted-foreground">
-                        {isLoading ? 'Thinking...' : 'Ready to help'}
-                    </p>
-                </div>
-                {isLoading && (
-                    <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                )}
-            </div>
+        <div className="flex flex-col h-full rounded-xl border border-border bg-card overflow-hidden shadow-sm relative">
+            {/* Header */}
+            {/* Header Removed */}
 
-            {/* Messages - Clean */}
-            <ScrollArea className="flex-1 px-4 py-3" ref={scrollRef}>
-                <div className="space-y-4">
+            {/* Messages Area - Using native div for scroll control */}
+            <div
+                className="flex-1 px-4 py-3 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent relative"
+                ref={scrollRef}
+                onScroll={handleScroll}
+            >
+                <div className="space-y-4 pb-4">
                     {messages.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground">
-                            <p className="text-xs">Ask me anything about your project</p>
+                        <div className="text-center py-12 text-muted-foreground flex flex-col items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                                <span className="text-xl">👋</span>
+                            </div>
+                            <p className="text-xs max-w-[200px] leading-relaxed">
+                                I'm your AI Co-Founder. Ask me to validate ideas, find competitors, or just roast your pitch.
+                            </p>
                         </div>
                     )}
 
@@ -97,16 +114,16 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
                         <div
                             key={m.id}
                             className={cn(
-                                "flex",
+                                "flex w-full",
                                 m.role === 'user' ? 'justify-end' : 'justify-start'
                             )}
                         >
                             <div
                                 className={cn(
-                                    "rounded-lg px-3 py-2 text-xs max-w-[90%]",
+                                    "rounded-2xl px-4 py-3 text-xs max-w-[85%] break-words whitespace-pre-wrap shadow-sm",
                                     m.role === 'user'
-                                        ? 'bg-foreground text-background'
-                                        : 'bg-muted text-foreground'
+                                        ? 'bg-foreground text-background rounded-tr-sm'
+                                        : 'bg-muted/50 text-foreground border border-border rounded-tl-sm'
                                 )}
                             >
                                 {m.parts?.map((part, i) => {
@@ -114,7 +131,7 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
                                         return (
                                             <div
                                                 key={i}
-                                                className="prose prose-xs dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                                                className="prose prose-xs dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 break-words"
                                             >
                                                 <ReactMarkdown>{part.text}</ReactMarkdown>
                                             </div>
@@ -122,8 +139,9 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
                                     }
                                     if (part.type.startsWith('tool-')) {
                                         return (
-                                            <div key={i} className="text-[10px] text-muted-foreground italic">
-                                                Processing...
+                                            <div key={i} className="text-[10px] text-muted-foreground italic flex items-center gap-2 my-1">
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                                Running tool: {part.type}
                                             </div>
                                         )
                                     }
@@ -132,36 +150,43 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
                             </div>
                         </div>
                     ))}
-
-                    {isLoading && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                            <span className="text-xs">Thinking...</span>
-                        </div>
-                    )}
                 </div>
-            </ScrollArea>
+            </div>
 
-            {/* Input - Refined */}
-            <form onSubmit={handleSubmit} className="p-3 border-t border-border shrink-0">
-                <div className="flex gap-2">
+            {/* Floating Scroll Button - Positioned absolutely relative to the main card */}
+            {showScrollButton && (
+                <div className="absolute bottom-[4.5rem] right-4 z-50">
+                    <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-8 w-8 rounded-full shadow-md animate-in fade-in zoom-in duration-200 opacity-90 hover:opacity-100 bg-background border border-border"
+                        onClick={scrollToBottom}
+                    >
+                        <ArrowDown className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
+
+            {/* Input */}
+            <form onSubmit={handleSubmit} className="p-3 border-t border-border shrink-0 bg-background">
+                <div className="flex gap-2 items-end">
                     <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask anything..."
+                        placeholder="Type a message..."
                         disabled={isLoading}
-                        className="text-xs h-9 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-accent"
+                        className="text-xs min-h-[40px] py-3 bg-muted/30 border-border focus-visible:ring-1 focus-visible:ring-accent resize-none"
                     />
                     <Button
                         type="submit"
                         size="icon"
                         disabled={isLoading || !input.trim()}
-                        className="h-9 w-9 shrink-0 bg-foreground hover:bg-foreground/90"
+                        className="h-10 w-10 shrink-0 bg-foreground hover:bg-foreground/90 rounded-lg transition-all"
                     >
                         {isLoading ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                            <Send className="w-3.5 h-3.5" />
+                            <Send className="w-4 h-4" />
                         )}
                     </Button>
                 </div>
@@ -169,3 +194,4 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
         </div>
     )
 }
+

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Logo } from "@/components/ui/logo"
 import { usePathname } from "next/navigation"
 
 export function SiteFooter() {
@@ -16,8 +17,9 @@ export function SiteFooter() {
             <div className="container mx-auto px-4 md:px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
                     <div className="col-span-1 md:col-span-2">
-                        <Link href="/" className="font-bold text-xl tracking-tighter">
-                            PIELY
+                        <Link href="/" className="font-bold text-xl tracking-tighter flex items-center gap-2">
+                            <Logo className="w-8 h-8" />
+                            <span>PIELY</span>
                         </Link>
                         <p className="mt-4 text-muted-foreground text-sm max-w-xs leading-relaxed">
                             Decision intelligence for founders. meaningful logic, not generic advice.

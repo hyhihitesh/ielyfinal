@@ -2,6 +2,7 @@
 
 import { login } from '../actions'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
@@ -44,9 +45,9 @@ function LoginForm() {
     return (
         <div className="w-full max-w-[480px] mx-auto px-6 py-12 flex flex-col justify-center min-h-[80vh]">
             {/* Header / Logo */}
-            <div className="text-center mb-12 space-y-4">
-                <h1 className="text-4xl font-bold tracking-tight text-[#D4CDBC] font-serif">PIELY</h1> {/* Using a beige/gold hex to match image somewhat, or just standard foreground if theme handles it. Using Serif for 'PIELY' logo look? Actually looking at image it's Sans but Gold/Greenish. Let's use theme color. */}
-                <h1 className="text-3xl font-bold tracking-tighter text-foreground/80">PIELY</h1>
+            <div className="text-center mb-12 space-y-4 flex flex-col items-center">
+                <Logo className="w-16 h-16" />
+                <h1 className="text-3xl font-bold tracking-tighter text-foreground">PIELY</h1>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-mono">
                     Decision Intelligence
                 </p>

@@ -8,7 +8,7 @@ if (isBrowser) {
     if (token) {
         const isDev = process.env.NODE_ENV === 'development';
         mixpanel.init(token, {
-            debug: isDev,
+            debug: false, // Set to false to suppress "Bad HTTP status: 0" errors from AdBlockers
             track_pageview: true,
             persistence: "localStorage",
         });

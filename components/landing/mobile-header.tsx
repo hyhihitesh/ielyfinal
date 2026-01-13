@@ -5,6 +5,7 @@ import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/ui/logo"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -32,7 +33,7 @@ export function MobileHeader() {
                 <div className="flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-md border-b border-border/20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-saffron rounded-none" />
+                        <Logo className="w-8 h-8" />
                         <span className="font-mono text-sm uppercase tracking-widest text-foreground font-bold">Piely</span>
                     </Link>
 

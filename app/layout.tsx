@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { BottomNav } from "@/components/mobile/bottom-nav";
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -77,6 +78,7 @@ export default function RootLayout({
           <BottomNav />
           {/* GlobalChat removed - now embedded in dashboard sidebar */}
           <SiteFooter />
+          <Toaster />
         </ThemeProvider>
         <script
           type="application/ld+json"
