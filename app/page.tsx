@@ -1,5 +1,5 @@
 import { SideNav } from "@/components/landing/side-nav"
-import { MobileHeader } from "@/components/landing/mobile-header"
+
 import { HeroSection } from "@/components/landing/hero-section"
 import { ProblemSection } from "@/components/landing/problem-section"
 import { SolutionSection } from "@/components/landing/solution-section"
@@ -13,8 +13,7 @@ export default function Page() {
   return (
     <>
       <SideNav />
-      <MobileHeader />
-      <main className="relative pt-14 md:pt-0">
+      <main className="relative pt-0">
         <HeroSection />
         <ProblemSection />
         <SolutionSection />

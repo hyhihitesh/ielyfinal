@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getMindsFeed } from '@/app/actions/minds'
 import { MindsFeed } from '@/components/minds/feed'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +17,7 @@ export default async function MindsPage() {
                         href="/dashboard"
                         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
                     >
-                        ← Back to Dashboard
+                        <ArrowLeft className="w-4 h-4" /> Back to Dashboard
                     </a>
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-3">

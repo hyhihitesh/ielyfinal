@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { useEffect, useRef } from "react"
 import { ScrambleText, ScrambleTextOnHover } from "@/components/landing/scramble-text"
 import { AnimatedNoise } from "@/components/landing/animated-noise"
@@ -86,9 +87,9 @@ export function HeroSection() {
                     </Link>
                     <a
                         href="#how-it-works"
-                        className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200 pt-2.5 sm:pt-3 w-full sm:w-auto text-center sm:text-left"
+                        className="group font-mono text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200 pt-2.5 sm:pt-3 w-full sm:w-auto text-center sm:text-left flex items-center gap-2 justify-center sm:justify-start"
                     >
-                        See How It Works →
+                        See How It Works <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </a>
                 </div>
             </div>

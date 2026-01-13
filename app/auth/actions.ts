@@ -72,6 +72,13 @@ export async function signup(formData: FormData) {
         redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`)
     }
 
+    try {
+        const { sendWelcomeEmailAction } = await import('@/app/actions/email')
+        await sendWelcomeEmailAction()
+    } catch (e) {
+        console.error("Failed to enqueue welcome email", e)
+    }
+
     revalidatePath('/', 'layout')
     redirect('/onboarding')
 }

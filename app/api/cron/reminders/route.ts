@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { sendEmail, getReminderEmailHtml } from '@/lib/email/resend'
+import { sendReminderEmail } from '@/lib/email'
 
 // Cron job to send reminder emails to inactive users
 // This should be triggered by Vercel Cron or an external scheduler
@@ -80,14 +80,13 @@ export async function GET(request: NextRequest) {
             const lastActive = new Date(user.updated_at)
             const daysInactive = Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24))
 
-            const html = getReminderEmailHtml(userName, projectTitle, daysInactive)
-
             // Send email using Resend
-            const result = await sendEmail({
-                to: user.email,
-                subject: `🚀 Your startup journey awaits, ${userName}!`,
-                html,
-            })
+            const result = await sendReminderEmail(
+                user.email,
+                userName,
+                projectTitle,
+                daysInactive
+            )
 
             results.push({ email: user.email, success: result.success })
             if (result.success) sentCount++

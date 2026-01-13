@@ -2,6 +2,18 @@
 
 import { motion } from 'framer-motion'
 import { BADGE_DEFINITIONS, UserBadge, BadgeType } from '@/lib/types/gamification'
+import { Target, Zap, Trophy, Rocket, Flame, Dumbbell, Crown, Sparkles } from 'lucide-react'
+
+const BADGE_ICONS: Record<BadgeType, React.ElementType> = {
+    first_task: Target,
+    task_master_10: Zap,
+    task_master_50: Trophy,
+    node_complete: Rocket,
+    streak_3: Flame,
+    streak_7: Dumbbell,
+    streak_30: Crown,
+    early_adopter: Sparkles,
+}
 
 interface BadgeDisplayProps {
     badges: UserBadge[]
@@ -32,10 +44,14 @@ function BadgeItem({ badgeType, earnedAt, locked = false }: BadgeItemProps) {
                     : 'bg-accent/10 border border-accent/20'}
                 transition-all duration-300
                 ${!locked ? 'cursor-pointer hover:bg-accent/20' : 'cursor-default'}
+                ${!locked ? 'cursor-pointer hover:bg-accent/20' : 'cursor-default'}
             `}>
-                <span className={locked ? 'grayscale opacity-50' : ''}>
-                    {definition.icon}
-                </span>
+                <div className={locked ? 'opacity-50 grayscale' : 'text-primary'}>
+                    {(() => {
+                        const Icon = BADGE_ICONS[badgeType]
+                        return <Icon className="w-5 h-5" />
+                    })()}
+                </div>
             </div>
 
             {/* Minimal Tooltip */}

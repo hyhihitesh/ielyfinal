@@ -47,10 +47,10 @@ export function SettingsModal({ isOpen, onOpenChange, user }: SettingsModalProps
                     <Tabs defaultValue="profile" orientation="vertical" className="flex w-full h-full">
                         <div className="w-[180px] border-r border-border bg-muted/20 p-4 shrink-0 flex flex-col gap-2">
                             <div className="mb-4 px-2">
-                                <h2 className="font-bold text-lg flex items-center gap-2">
+                                <DialogTitle className="font-bold text-lg flex items-center gap-2">
                                     <SettingsIcon className="w-5 h-5 text-primary" />
                                     Settings
-                                </h2>
+                                </DialogTitle>
                             </div>
 
                             <TabsList className="flex flex-col h-auto bg-transparent gap-1 p-0 justify-start w-full">
@@ -171,8 +171,11 @@ export function SettingsModal({ isOpen, onOpenChange, user }: SettingsModalProps
                                         </div>
                                     </div>
 
-                                    <Button variant="outline" className="w-full" asChild>
-                                        <a href="/pricing">Upgrade Plan</a>
+                                    <Button className="w-full gap-2" asChild>
+                                        <a href="/api/checkout?priceId=f1208a38-d267-4664-8bab-fbbf5ff877f1">
+                                            <CreditCard className="w-4 h-4" />
+                                            Upgrade to Pro
+                                        </a>
                                     </Button>
                                 </div>
                             </TabsContent>

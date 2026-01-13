@@ -14,18 +14,16 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { motion } from 'framer-motion';
-import { Sparkles, Lock, CheckCircle2, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, Lock, CheckCircle2, PlayCircle, ChevronLeft, ChevronRight, Globe, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Database } from '@/lib/types/database';
-import { RoadmapList } from '@/components/mobile/roadmap-list';
-import { DetailModal } from '@/components/mobile/detail-modal';
-import { QuickActions } from '@/components/mobile/quick-actions';
-import { useIsMobile } from '@/lib/hooks/use-breakpoint';
+// Mobile components removed
+// Mobile hook removed
 import mixpanel from '@/lib/analytics';
 import { User } from '@supabase/supabase-js';
 import dynamic from 'next/dynamic';
-import { TourProvider } from '@/components/onboarding/tour-provider';
+import { TourProvider } from '@/components/providers/tour-provider';
 import { UserStats } from '@/app/actions/analytics';
 import { UserBadge } from '@/lib/types/gamification';
 import { toast } from 'sonner';
@@ -181,7 +179,8 @@ export default function DashboardClient({
     const [showLeftSidebar, setShowLeftSidebar] = useState(true);
     const [showRightSidebar, setShowRightSidebar] = useState(true);
 
-    const isMobile = useIsMobile();
+    // Mobile logic removed
+    const isMobile = false;
 
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         const data = node.data as CanvasNodeData;
@@ -273,7 +272,7 @@ export default function DashboardClient({
                                             onClick={() => router.push('/dashboard/minds')}
                                             className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent/10 transition-colors flex items-center gap-2"
                                         >
-                                            <span>🌍</span> Community
+                                            <Globe className="w-4 h-4" /> Community
                                         </button>
                                         <button
                                             onClick={() => {
@@ -282,7 +281,7 @@ export default function DashboardClient({
                                             }}
                                             className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent/10 transition-colors flex items-center gap-2"
                                         >
-                                            <span>⚙️</span> Settings
+                                            <Settings className="w-4 h-4" /> Settings
                                         </button>
                                         <button
                                             onClick={async () => {
@@ -293,7 +292,7 @@ export default function DashboardClient({
                                             }}
                                             className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
                                         >
-                                            <span>🚪</span> Sign Out
+                                            <LogOut className="w-4 h-4" /> Sign Out
                                         </button>
                                     </div>
                                 )}
@@ -358,29 +357,27 @@ export default function DashboardClient({
                         </div>
                     )}
 
-                    {/* Center - Canvas Area */}
-                    {!isMobile && (
-                        <div className="flex-1 relative hidden md:block" data-tour="canvas">
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                nodeTypes={nodeTypes}
-                                onNodeClick={onNodeClick}
-                                onNodesChange={onNodesChange}
-                                onEdgesChange={onEdgesChange}
-                                fitView
-                                className="bg-background/50"
-                                defaultEdgeOptions={{
-                                    type: 'smoothstep',
-                                    animated: true,
-                                    style: { stroke: 'var(--border)', strokeWidth: 1.5, strokeDasharray: '4 4' },
-                                }}
-                            >
-                                <Background color="#e4e4e7" gap={24} size={1} />
-                                <Controls className="!bg-card !border !border-border !shadow-none !rounded-none" />
-                            </ReactFlow>
-                        </div>
-                    )}
+                    {/* Center - Canvas Area (Always Visible) */}
+                    <div className="flex-1 relative block" data-tour="canvas">
+                        <ReactFlow
+                            nodes={nodes}
+                            edges={edges}
+                            nodeTypes={nodeTypes}
+                            onNodeClick={onNodeClick}
+                            onNodesChange={onNodesChange}
+                            onEdgesChange={onEdgesChange}
+                            fitView
+                            className="bg-background/50"
+                            defaultEdgeOptions={{
+                                type: 'smoothstep',
+                                animated: true,
+                                style: { stroke: 'var(--border)', strokeWidth: 1.5, strokeDasharray: '4 4' },
+                            }}
+                        >
+                            <Background color="#e4e4e7" gap={24} size={1} />
+                            <Controls className="!bg-card !border !border-border !shadow-none !rounded-none" />
+                        </ReactFlow>
+                    </div>
 
                     {/* Right Sidebar - Navigation & Stats (Moved to Right) */}
                     <div
@@ -411,7 +408,7 @@ export default function DashboardClient({
                                         onClick={() => router.push('/dashboard/minds')}
                                         className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/5 rounded-lg transition-colors text-left group"
                                     >
-                                        <span className="text-lg group-hover:scale-110 transition-transform">🌍</span>
+                                        <Globe className="w-4 h-4 group-hover:scale-110 transition-transform text-muted-foreground group-hover:text-foreground" />
                                         <span>Minds Feed</span>
                                     </button>
                                 </div>
@@ -449,39 +446,7 @@ export default function DashboardClient({
                         </div>
                     )}
 
-                    {/* Mobile Roadmap List */}
-                    {isMobile && (
-                        <div className="flex-1 overflow-y-auto p-4 pb-32 md:hidden">
-                            <div className="mb-6">
-                                <h2 className="text-xl font-bold text-foreground mb-1">{project.title}</h2>
-                                <p className="text-sm text-muted-foreground">
-                                    Stage: <span className="text-accent font-medium">{project.stage || 'Idea'}</span>
-                                </p>
-                            </div>
-
-                            {/* Mobile Nav Links */}
-                            <button
-                                onClick={() => router.push('/dashboard/minds')}
-                                className="w-full flex items-center justify-between p-3 mb-6 bg-card/50 border border-border rounded-xl active:scale-95 transition-transform"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="text-xl">🌍</span>
-                                    <div className="flex flex-col items-start">
-                                        <span className="font-bold text-sm">Community Feed</span>
-                                        <span className="text-[10px] text-muted-foreground">See what others are building</span>
-                                    </div>
-                                </div>
-                                <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
-                                    →
-                                </div>
-                            </button>
-
-                            <RoadmapList
-                                nodes={mobileNodes}
-                                onNodeClick={onMobileNodeClick}
-                            />
-                        </div>
-                    )}
+                    {/* Mobile Roadmap List Removed */}
                 </div>
 
                 {/* Desktop Node Details Sheet */}
@@ -492,53 +457,9 @@ export default function DashboardClient({
                 />
 
                 {/* Mobile Detail Modal */}
-                <DetailModal
-                    isOpen={isMobileModalOpen}
-                    onClose={() => setIsMobileModalOpen(false)}
-                    title={selectedNode?.title}
-                >
-                    {selectedNode && (
-                        <div className="space-y-6">
-                            <p className="text-muted-foreground">{selectedNode.description}</p>
-                            {selectedNode.ai_insight && (
-                                <div className="bg-accent/10 border border-accent/20 rounded-xl p-4">
-                                    <h4 className="font-bold text-accent text-sm mb-2">AI Insight</h4>
-                                    <p className="text-sm text-foreground">{selectedNode.ai_insight}</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </DetailModal>
+                {/* Mobile Detail Modal Removed */}
 
-                {isMobile && selectedNode && isMobileModalOpen && (
-                    <QuickActions
-                        className="z-[60]" // Lift above modal
-                        onComplete={async () => {
-                            try {
-                                const { updateNodeStatus } = await import('@/app/actions/node')
-                                await updateNodeStatus(selectedNode.id, 'complete')
-                                toast.success("Node marked as complete! 🎉")
-                                setIsMobileModalOpen(false)
-                            } catch (e) {
-                                toast.error("Failed to update status")
-                            }
-                        }}
-                        onAskAI={() => {
-                            setIsChatOpen(true); // Open global chat
-                        }}
-                        onAddTask={async () => {
-                            try {
-                                // Default action: Add a generic 'Research' task for quick capture
-                                const { addTask } = await import('@/app/actions/task')
-                                await addTask(selectedNode.id, "Research & Validatation")
-                                toast.success("Task added to node")
-                                setIsMobileModalOpen(false) // Close to show update
-                            } catch (e) {
-                                toast.error("Failed to add task")
-                            }
-                        }}
-                    />
-                )}
+                {/* Quick Actions Removed */}
             </div>
         </TourProvider >
     );

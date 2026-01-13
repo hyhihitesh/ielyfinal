@@ -1,6 +1,6 @@
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { Send, Loader2, ArrowDown } from 'lucide-react'
+import { Send, Loader2, ArrowDown, Bot } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -102,7 +102,7 @@ export function SidebarChat({ projectId, initialMessages }: SidebarChatProps) {
                     {messages.length === 0 && (
                         <div className="text-center py-12 text-muted-foreground flex flex-col items-center gap-3">
                             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                                <span className="text-xl">👋</span>
+                                <Bot className="w-6 h-6 text-foreground" />
                             </div>
                             <p className="text-xs max-w-[200px] leading-relaxed">
                                 I'm your AI Co-Founder. Ask me to validate ideas, find competitors, or just roast your pitch.

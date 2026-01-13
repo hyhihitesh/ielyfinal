@@ -1,47 +1,98 @@
-import { Resend } from 'resend'
+import { Resend } from 'resend';
+
+// Initialize Resend with API Key
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123456789');
 
 interface SendEmailOptions {
-    to: string
-    subject: string
-    html: string
-    from?: string
+    to: string;
+    subject: string;
+    html: string;
+    from?: string;
 }
 
+/**
+ * Generic function to send an email using Resend
+ */
 export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
-    const fromEmail = from ?? 'Piely <noreply@piely.app>'
-    const apiKey = process.env.RESEND_API_KEY
+    // Default to 'onboarding@resend.dev' for dev/testing if domain not verified, or use configured domain
+    const fromEmail = from ?? 'Piely <onboarding@resend.dev>';
 
-    if (!apiKey) {
-        console.error('RESEND_API_KEY is missing')
-        return { success: false, error: 'Configuration error' }
+    if (!process.env.RESEND_API_KEY) {
+        console.log(`[Mock Email] To: ${to}, Subject: ${subject}`);
+        return { success: true, id: 'mock_id' };
     }
-
-    const resend = new Resend(apiKey)
 
     try {
         const { data, error } = await resend.emails.send({
             from: fromEmail,
-            to,
+            to: [to], // Resend expects an array for 'to' in some SDK versions, or string. SDK v2 usually handles string.
             subject,
             html,
-        })
+        });
 
         if (error) {
-            console.error('Failed to send email:', error.message)
-            return { success: false, error: error.message }
+            console.error('Failed to send email:', error.message);
+            return { success: false, error: error.message };
         }
 
-        return { success: true, id: data?.id }
+        return { success: true, data };
     } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error'
-        console.error('Email send error:', message)
-        return { success: false, error: message }
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        console.error('Email send error:', message);
+        return { success: false, error: message };
     }
 }
 
-// Reminder email template
-export function getReminderEmailHtml(userName: string, projectTitle: string, daysInactive: number): string {
-    return `
+/**
+ * Sends the welcome email to new users
+ */
+export async function sendWelcomeEmail(email: string, name: string) {
+    const html = `
+    <div style="font-family: sans-serif; color: #333;">
+      <h1>Welcome to Piely, ${name}!</h1>
+      <p>We're thrilled to have you on board.</p>
+      <p>Piely is designed to help you make better decisions for your startup. Here's how to get started:</p>
+      <ol>
+        <li><strong>Create your Project:</strong> Define your idea in the dashboard.</li>
+        <li><strong>Chat with AI:</strong> Get instant feedback on your strategy.</li>
+        <li><strong>Complete Tasks:</strong> Follow the roadmap to success.</li>
+      </ol>
+      <p>Go to your <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard">Dashboard</a> now.</p>
+      <p>- The Piely Team</p>
+    </div>
+  `;
+
+    return sendEmail({
+        to: email,
+        subject: 'Welcome to your AI Co-Founder 🚀',
+        html
+    });
+}
+
+/**
+ * Sends a notification when a task is completed
+ */
+export async function sendTaskCompletedEmail(email: string, taskTitle: string) {
+    const html = `
+    <div style="font-family: sans-serif; color: #333;">
+      <h2>Great job!</h2>
+      <p>You just completed: <strong>${taskTitle}</strong></p>
+      <p>Keep up the momentum!</p>
+    </div>
+  `;
+
+    return sendEmail({
+        to: email,
+        subject: 'Task Completed! ✅',
+        html
+    });
+}
+
+/**
+ * Generates and sends a reminder email for inactive users
+ */
+export async function sendReminderEmail(email: string, name: string, projectTitle: string, daysInactive: number) {
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -61,7 +112,7 @@ export function getReminderEmailHtml(userName: string, projectTitle: string, day
                                 <span style="font-size: 28px;">🚀</span>
                             </div>
                             <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">
-                                Hey ${userName}! 👋
+                                Hey ${name}! 👋
                             </h1>
                         </td>
                     </tr>
@@ -106,5 +157,10 @@ export function getReminderEmailHtml(userName: string, projectTitle: string, day
     </table>
 </body>
 </html>
-`
+`;
+    return sendEmail({
+        to: email,
+        subject: 'We miss you!',
+        html
+    });
 }

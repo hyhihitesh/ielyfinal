@@ -48,6 +48,15 @@ export async function toggleTask(taskId: string, completed: boolean) {
 
     // Check for badge awards when completing a task
     if (completed) {
+        // Send email notification (non-blocking)
+        import('@/app/actions/email').then(({ sendTaskEmailAction }) => {
+            // Fetch task title again or pass it in? 
+            // We need to fetch it to be safe, or just fire and forget if acceptable.
+            // Let's fetch it quickly or just accept the latency.
+            // Actually, we already fetch the task below for logic Phase 8.
+            // Let's do it after logic Phase 8.
+        }).catch(console.error)
+
         const { checkAndAwardBadges } = await import('./badges')
         // ... (existing badge logic) ...
         const { data: { user } } = await supabase.auth.getUser()
@@ -67,9 +76,16 @@ export async function toggleTask(taskId: string, completed: boolean) {
     // --- PHASE 8: BUSINESS LOGIC START ---
     try {
         const { updateNodeProgress, checkProjectProgression } = await import('./logic/progress')
-        const { data: task } = await supabase.from('tasks').select('node_id').eq('id', taskId).single()
+        const { data: task } = await supabase.from('tasks').select('node_id, title').eq('id', taskId).single()
 
         if (task) {
+            // Send Email Notification
+            if (completed) {
+                import('@/app/actions/email').then(({ sendTaskEmailAction }) => {
+                    sendTaskEmailAction(task.title).catch(console.error)
+                })
+            }
+
             const result = await updateNodeProgress(task.node_id)
             if (result?.isComplete) {
                 await checkProjectProgression(result.projectId)
